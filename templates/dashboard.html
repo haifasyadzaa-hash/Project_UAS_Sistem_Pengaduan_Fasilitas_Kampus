@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Dashboard Admin{% endblock %}
+
+{% block content %}
+<h3 class="mb-4">Dashboard Admin</h3>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3 col-6">
+        <div class="card stat-card shadow-sm">
+            <div class="card-body">
+                <div class="small text-muted">Total Pengaduan</div>
+                <div class="fs-2 fw-bold">{{ total_pengaduan }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="card stat-card shadow-sm">
+            <div class="card-body">
+                <div class="small text-muted">Total Fasilitas</div>
+                <div class="fs-2 fw-bold">{{ total_fasilitas }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="card stat-card shadow-sm">
+            <div class="card-body">
+                <div class="small text-muted">Pengaduan Baru</div>
+                <div class="fs-2 fw-bold text-warning">{{ status_counts['Baru'] }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="card stat-card shadow-sm">
+            <div class="card-body">
+                <div class="small text-muted">Pengaduan Selesai</div>
+                <div class="fs-2 fw-bold text-success">{{ status_counts['Selesai'] }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h6 class="card-title">Rekap Pengaduan per Status</h6>
+                {% for status, jumlah in status_counts.items() %}
+                <div class="d-flex justify-content-between small mb-1">
+                    <span>{{ status }}</span><span>{{ jumlah }}</span>
+                </div>
+                <div class="progress mb-2" style="height: 8px;">
+                    <div class="progress-bar bar-{{ status|lower }}"
+                         style="width: {{ (jumlah / total_pengaduan * 100) if total_pengaduan else 0 }}%;"></div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h6 class="card-title">Fasilitas Paling Banyak Diadukan</h6>
+                <ol class="mb-0">
+                    {% for f in fasilitas_terbanyak_diadukan %}
+                    <li class="d-flex justify-content-between small py-1 border-bottom">
+                        <span>{{ f.nama }}</span><span class="fw-bold">{{ f.jumlah }}</span>
+                    </li>
+                    {% else %}
+                    <p class="text-muted small">Belum ada data.</p>
+                    {% endfor %}
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm mt-4">
+    <div class="card-body">
+        <h6 class="card-title">5 Pengaduan Terbaru</h6>
+        <div class="table-responsive">
+            <table class="table table-sm align-middle">
+                <thead>
+                    <tr><th>Fasilitas</th><th>Pelapor</th><th>Status</th><th>Tanggal</th></tr>
+                </thead>
+                <tbody>
+                    {% for p in pengaduan_terbaru %}
+                    <tr>
+                        <td>{{ p.nama_fasilitas }}</td>
+                        <td>{{ p.nama_pelapor }}</td>
+                        <td><span class="badge badge-{{ p.status|lower }}">{{ p.status }}</span></td>
+                        <td>{{ p.tanggal }}</td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="4" class="text-muted text-center">Belum ada pengaduan.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <a href="{{ url_for('daftar_pengaduan') }}" class="btn btn-sm btn-outline-primary">Lihat Semua Pengaduan</a>
+    </div>
+</div>
+{% endblock %}
