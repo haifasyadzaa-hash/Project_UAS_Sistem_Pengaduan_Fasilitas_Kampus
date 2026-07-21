@@ -37,15 +37,15 @@ class DBConnection:
 
 
 def get_db_connection():
-    """Membuat koneksi ke database Postgres Supabase via Environment Variable."""
     connection_url = (
         os.environ.get('DATABASE_URL')
         or os.environ.get('SUPABASE_DATABASE_URL')
-        or os.environ.get('SUPABASE_URL')
     )
     if not connection_url:
         raise RuntimeError(
-            "DATABASE_URL belum diset. Tambahkan env var DATABASE_URL atau SUPABASE_DATABASE_URL di Vercel dengan connection string Supabase Postgres."
+            "DATABASE_URL belum diset. Tambahkan env var DATABASE_URL di Vercel "
+            "dengan connection string Supabase Postgres (gunakan mode Connection "
+            "Pooling/port 6543, bukan direct connection port 5432)."
         )
 
     if 'sslmode=' not in connection_url:
@@ -57,7 +57,11 @@ def get_db_connection():
 
 
 def init_db():
-    """Inisialisasi database Postgres dan membuat tabel yang diperlukan jika belum ada."""
+    """Inisialisasi database Postgres dan membuat tabel yang diperlukan jika belum ada.
+
+    Aman dipanggil berkali-kali (pakai IF NOT EXISTS), jadi bisa dijalankan
+    setiap cold start di Vercel tanpa merusak data yang sudah ada.
+    """
     conn = get_db_connection()
     cur = conn.cursor()
 
@@ -86,24 +90,25 @@ def init_db():
         """
         CREATE TABLE IF NOT EXISTS pengaduan (
             id SERIAL PRIMARY KEY,
-            fasilitas_id INTEGER NOT NULL,
+            fasilitas_id INTEGER NOT NULL REFERENCES fasilitas(id),
             nama_pelapor TEXT NOT NULL,
             email TEXT NOT NULL,
             deskripsi TEXT NOT NULL,
             status TEXT NOT NULL DEFAULT 'Baru',
             catatan_admin TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY(fasilitas_id) REFERENCES fasilitas(id)
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
         """
     )
 
     cur.execute("SELECT COUNT(*) FROM admin")
     if cur.fetchone()[0] == 0:
-        pw_hash = generate_password_hash("SyadzaHaifa11")
+        default_username = os.environ.get("DEFAULT_ADMIN_USERNAME", "Syadza Haifa")
+        default_password = os.environ.get("DEFAULT_ADMIN_PASSWORD", "SyadzaHaifa11")
+        pw_hash = generate_password_hash(default_password)
         cur.execute(
             "INSERT INTO admin (username, password_hash) VALUES (%s, %s)",
-            ("Syadza Haifa", pw_hash),
+            (default_username, pw_hash),
         )
 
     conn.commit()
