@@ -1,0 +1,46 @@
+:root {
+    --primary: #2c5f8a;
+    --primary-dark: #1e4666;
+}
+
+body {
+    background-color: #f4f6f9;
+}
+
+.bg-primary-custom {
+    background-color: var(--primary) !important;
+}
+
+.btn-primary-custom {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+}
+
+.btn-primary-custom:hover {
+    background-color: var(--primary-dark);
+    border-color: var(--primary-dark);
+    color: #fff;
+}
+
+.hero-box {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+}
+
+.stat-card {
+    border: none;
+    border-left: 4px solid var(--primary);
+}
+
+.badge-baru { background-color: #f5a524; }
+.badge-diproses { background-color: #3b82f6; }
+.badge-selesai { background-color: #22c55e; }
+.badge-ditolak { background-color: #ef4444; }
+.badge { color: #fff; }
+
+.bar-baru { background-color: #f5a524; }
+.bar-diproses { background-color: #3b82f6; }
+.bar-selesai { background-color: #22c55e; }
+.bar-ditolak { background-color: #ef4444; }
+
+.card { border-radius: 0.75rem; }
