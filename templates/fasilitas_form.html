@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}{{ "Edit" if mode == "edit" else "Tambah" }} Fasilitas{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <h3 class="mb-3">{{ "Edit" if mode == "edit" else "Tambah" }} Fasilitas</h3>
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form method="POST" novalidate class="needs-validation-manual">
+                    <div class="mb-3">
+                        <label for="nama" class="form-label">Nama Fasilitas</label>
+                        <input type="text" class="form-control" id="nama" name="nama" required
+                               value="{{ fasilitas.nama if fasilitas else '' }}">
+                        <div class="invalid-feedback">Nama fasilitas wajib diisi.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="lokasi" class="form-label">Lokasi</label>
+                        <input type="text" class="form-control" id="lokasi" name="lokasi" required
+                               value="{{ fasilitas.lokasi if fasilitas else '' }}">
+                        <div class="invalid-feedback">Lokasi wajib diisi.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="deskripsi" class="form-label">Deskripsi</label>
+                        <textarea class="form-control" id="deskripsi" name="deskripsi" rows="3">{{ fasilitas.deskripsi if fasilitas else '' }}</textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary-custom">Simpan</button>
+                    <a href="{{ url_for('daftar_fasilitas') }}" class="btn btn-outline-secondary">Batal</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
