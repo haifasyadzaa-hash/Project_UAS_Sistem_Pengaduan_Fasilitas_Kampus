@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Kelola Pengaduan{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <h3 class="mb-0">Kelola Pengaduan</h3>
+    <form method="GET" class="d-flex gap-2">
+        <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+            <option value="" {{ "selected" if not filter_status else "" }}>Semua Status</option>
+            {% for s in status_list %}
+            <option value="{{ s }}" {{ "selected" if filter_status == s else "" }}>{{ s }}</option>
+            {% endfor %}
+        </select>
+    </form>
+</div>
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th><th>Fasilitas</th><th>Pelapor</th><th>Email</th>
+                    <th>Deskripsi</th><th>Status</th><th>Tanggal</th><th class="text-end">Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in daftar_pengaduan %}
+                <tr>
+                    <td>{{ p.id }}</td>
+                    <td>{{ p.nama_fasilitas }}</td>
+                    <td>{{ p.nama_pelapor }}</td>
+                    <td>{{ p.email }}</td>
+                    <td style="max-width: 220px;">{{ p.deskripsi }}</td>
+                    <td><span class="badge badge-{{ p.status|lower }}">{{ p.status }}</span></td>
+                    <td>{{ p.tanggal }}</td>
+                    <td class="text-end">
+                        <a href="{{ url_for('edit_pengaduan', pengaduan_id=p.id) }}" class="btn btn-sm btn-outline-secondary">Kelola</a>
+                        <form action="{{ url_for('hapus_pengaduan', pengaduan_id=p.id) }}" method="POST" class="d-inline"
+                              onsubmit="return confirm('Yakin ingin menghapus pengaduan ini?');">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Hapus</button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="8" class="text-center text-muted py-4">Belum ada data pengaduan.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
