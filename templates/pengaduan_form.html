@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Kelola Pengaduan{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <h3 class="mb-3">Detail & Kelola Pengaduan #{{ pengaduan.id }}</h3>
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-4">Fasilitas</dt><dd class="col-sm-8">{{ pengaduan.nama_fasilitas }}</dd>
+                    <dt class="col-sm-4">Nama Pelapor</dt><dd class="col-sm-8">{{ pengaduan.nama_pelapor }}</dd>
+                    <dt class="col-sm-4">Email</dt><dd class="col-sm-8">{{ pengaduan.email }}</dd>
+                    <dt class="col-sm-4">Tanggal</dt><dd class="col-sm-8">{{ pengaduan.tanggal }}</dd>
+                    <dt class="col-sm-4">Deskripsi</dt><dd class="col-sm-8">{{ pengaduan.deskripsi }}</dd>
+                </dl>
+                <hr>
+                <form method="POST" novalidate>
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Ubah Status</label>
+                        <select class="form-select" id="status" name="status" required>
+                            {% for s in status_list %}
+                            <option value="{{ s }}" {{ "selected" if pengaduan.status == s else "" }}>{{ s }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary-custom">Simpan Perubahan</button>
+                    <a href="{{ url_for('daftar_pengaduan') }}" class="btn btn-outline-secondary">Kembali</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
