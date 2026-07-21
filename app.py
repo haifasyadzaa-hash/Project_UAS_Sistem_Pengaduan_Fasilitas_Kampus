@@ -61,8 +61,15 @@ def tambah_pengaduan():
         return redirect(url_for("index"))
 
     conn = get_db_connection()
+    try:
+        fasilitas_id_int = int(fasilitas_id)
+    except ValueError:
+        flash("Fasilitas tidak valid.", "danger")
+        return redirect(url_for("index"))
+
     conn.execute(
-        (fasilitas_id, nama_pelapor, email, deskripsi),
+        "INSERT INTO pengaduan (fasilitas_id, nama_pelapor, email, deskripsi) VALUES (?, ?, ?, ?)",
+        (fasilitas_id_int, nama_pelapor, email, deskripsi),
     )
     conn.commit()
     conn.close()
@@ -121,6 +128,7 @@ def dashboard():
     total_fasilitas = conn.execute("SELECT COUNT(*) AS c FROM fasilitas").fetchone()["c"]
 
     per_status = conn.execute(
+        "SELECT status, COUNT(*) AS jumlah FROM pengaduan GROUP BY status"
     ).fetchall()
 
     status_counts = {s: 0 for s in STATUS_LIST}
@@ -128,9 +136,11 @@ def dashboard():
         status_counts[row["status"]] = row["jumlah"]
 
     pengaduan_terbaru = conn.execute(
+        "SELECT p.*, f.nama AS nama_fasilitas FROM pengaduan p JOIN fasilitas f ON p.fasilitas_id = f.id ORDER BY p.created_at DESC LIMIT 5"
     ).fetchall()
 
     fasilitas_terbanyak_diadukan = conn.execute(
+        "SELECT f.*, COUNT(p.id) AS jumlah FROM fasilitas f LEFT JOIN pengaduan p ON p.fasilitas_id = f.id GROUP BY f.id ORDER BY jumlah DESC LIMIT 5"
     ).fetchall()
 
     conn.close()
@@ -261,6 +271,7 @@ def daftar_pengaduan():
 def edit_pengaduan(pengaduan_id):
     conn = get_db_connection()
     pengaduan = conn.execute(
+        "SELECT p.*, f.nama AS nama_fasilitas FROM pengaduan p JOIN fasilitas f ON p.fasilitas_id = f.id WHERE p.id = ?",
         (pengaduan_id,),
     ).fetchone()
 
@@ -309,14 +320,15 @@ def hapus_pengaduan(pengaduan_id):
 @login_required
 def laporan():
     conn = get_db_connection()
-
     per_status = conn.execute(
+        "SELECT status, COUNT(*) AS jumlah FROM pengaduan GROUP BY status"
     ).fetchall()
     status_counts = {s: 0 for s in STATUS_LIST}
     for row in per_status:
         status_counts[row["status"]] = row["jumlah"]
 
     per_fasilitas = conn.execute(
+        "SELECT f.nama AS nama_fasilitas, COUNT(p.id) AS jumlah FROM fasilitas f LEFT JOIN pengaduan p ON p.fasilitas_id = f.id GROUP BY f.id ORDER BY jumlah DESC"
     ).fetchall()
 
     conn.close()
