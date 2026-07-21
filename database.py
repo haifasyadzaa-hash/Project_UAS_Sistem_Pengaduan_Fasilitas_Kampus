@@ -38,7 +38,20 @@ class DBConnection:
 
 def get_db_connection():
     """Membuat koneksi ke database Postgres Supabase via Environment Variable."""
-    connection_url = os.environ.get('DATABASE_URL')
+    connection_url = (
+        os.environ.get('DATABASE_URL')
+        or os.environ.get('SUPABASE_DATABASE_URL')
+        or os.environ.get('SUPABASE_URL')
+    )
+    if not connection_url:
+        raise RuntimeError(
+            "DATABASE_URL belum diset. Tambahkan env var DATABASE_URL atau SUPABASE_DATABASE_URL di Vercel dengan connection string Supabase Postgres."
+        )
+
+    if 'sslmode=' not in connection_url:
+        connector = '&' if '?' in connection_url else '?'
+        connection_url = f"{connection_url}{connector}sslmode=require"
+
     conn = psycopg2.connect(connection_url, cursor_factory=DictCursor)
     return DBConnection(conn)
 
