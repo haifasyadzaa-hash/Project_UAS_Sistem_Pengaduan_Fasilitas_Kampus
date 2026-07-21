@@ -3,18 +3,51 @@ import psycopg2
 from psycopg2.extras import DictCursor
 from werkzeug.security import generate_password_hash
 
+
+class DBConnection:
+    def __init__(self, conn):
+        self._conn = conn
+        self._cursor = conn.cursor()
+
+    def cursor(self):
+        return self._cursor
+
+    def execute(self, query, params=None):
+        if params is None:
+            self._cursor.execute(query)
+        else:
+            self._cursor.execute(query, params)
+        return self
+
+    def fetchone(self):
+        return self._cursor.fetchone()
+
+    def fetchall(self):
+        return self._cursor.fetchall()
+
+    def commit(self):
+        self._conn.commit()
+
+    def close(self):
+        try:
+            self._cursor.close()
+        except Exception:
+            pass
+        self._conn.close()
+
+
 def get_db_connection():
     """Membuat koneksi ke database Postgres Supabase via Environment Variable."""
     connection_url = os.environ.get('DATABASE_URL')
-    
     conn = psycopg2.connect(connection_url, cursor_factory=DictCursor)
-    return conn
+    return DBConnection(conn)
+
 
 def init_db():
     """Inisialisasi database Postgres dan membuat tabel yang diperlukan jika belum ada."""
     conn = get_db_connection()
     cur = conn.cursor()
-    
+
     cur.execute(
         """
         CREATE TABLE IF NOT EXISTS admin (
@@ -24,7 +57,7 @@ def init_db():
         )
         """
     )
-    
+
     cur.execute(
         """
         CREATE TABLE IF NOT EXISTS fasilitas (
@@ -35,7 +68,7 @@ def init_db():
         )
         """
     )
-    
+
     cur.execute(
         """
         CREATE TABLE IF NOT EXISTS pengaduan (
@@ -51,7 +84,7 @@ def init_db():
         )
         """
     )
-    
+
     cur.execute("SELECT COUNT(*) FROM admin")
     if cur.fetchone()[0] == 0:
         pw_hash = generate_password_hash("SyadzaHaifa11")
@@ -59,7 +92,6 @@ def init_db():
             "INSERT INTO admin (username, password_hash) VALUES (%s, %s)",
             ("Syadza Haifa", pw_hash),
         )
-        
+
     conn.commit()
-    cur.close()
     conn.close()
