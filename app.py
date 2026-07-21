@@ -68,7 +68,7 @@ def tambah_pengaduan():
         return redirect(url_for("index"))
 
     conn.execute(
-        "INSERT INTO pengaduan (fasilitas_id, nama_pelapor, email, deskripsi) VALUES (?, ?, ?, ?)",
+        "INSERT INTO pengaduan (fasilitas_id, nama_pelapor, email, deskripsi) VALUES (%s, %s, %s, %s)",
         (fasilitas_id_int, nama_pelapor, email, deskripsi),
     )
     conn.commit()
@@ -93,7 +93,7 @@ def login():
 
         conn = get_db_connection()
         admin = conn.execute(
-            "SELECT * FROM admin WHERE username = ?", (username,)
+            "SELECT * FROM admin WHERE username = %s", (username,)
         ).fetchone()
         conn.close()
 
@@ -181,7 +181,7 @@ def tambah_fasilitas():
 
         conn = get_db_connection()
         conn.execute(
-            "INSERT INTO fasilitas (nama, lokasi, deskripsi) VALUES (?, ?, ?)",
+            "INSERT INTO fasilitas (nama, lokasi, deskripsi) VALUES (%s, %s, %s)",
             (nama, lokasi, deskripsi),
         )
         conn.commit()
@@ -197,7 +197,7 @@ def tambah_fasilitas():
 def edit_fasilitas(fasilitas_id):
     conn = get_db_connection()
     fasilitas = conn.execute(
-        "SELECT * FROM fasilitas WHERE id = ?", (fasilitas_id,)
+        "SELECT * FROM fasilitas WHERE id = %s", (fasilitas_id,)
     ).fetchone()
 
     if fasilitas is None:
@@ -216,7 +216,7 @@ def edit_fasilitas(fasilitas_id):
             return render_template("fasilitas_form.html", mode="edit", fasilitas=fasilitas)
 
         conn.execute(
-            "UPDATE fasilitas SET nama = ?, lokasi = ?, deskripsi = ? WHERE id = ?",
+            "UPDATE fasilitas SET nama = %s, lokasi = %s, deskripsi = %s WHERE id = %s",
             (nama, lokasi, deskripsi, fasilitas_id),
         )
         conn.commit()
@@ -232,7 +232,7 @@ def edit_fasilitas(fasilitas_id):
 @login_required
 def hapus_fasilitas(fasilitas_id):
     conn = get_db_connection()
-    conn.execute("DELETE FROM fasilitas WHERE id = ?", (fasilitas_id,))
+    conn.execute("DELETE FROM fasilitas WHERE id = %s", (fasilitas_id,))
     conn.commit()
     conn.close()
     flash("Data fasilitas berhasil dihapus.", "success")
@@ -252,7 +252,7 @@ def daftar_pengaduan():
                FROM pengaduan p JOIN fasilitas f ON p.fasilitas_id = f.id"""
     params = []
     if filter_status:
-        query += " WHERE p.status = ?"
+        query += " WHERE p.status = %s"
         params.append(filter_status)
     query += " ORDER BY p.id DESC"
 
@@ -271,7 +271,7 @@ def daftar_pengaduan():
 def edit_pengaduan(pengaduan_id):
     conn = get_db_connection()
     pengaduan = conn.execute(
-        "SELECT p.*, f.nama AS nama_fasilitas FROM pengaduan p JOIN fasilitas f ON p.fasilitas_id = f.id WHERE p.id = ?",
+        "SELECT p.*, f.nama AS nama_fasilitas FROM pengaduan p JOIN fasilitas f ON p.fasilitas_id = f.id WHERE p.id = %s",
         (pengaduan_id,),
     ).fetchone()
 
@@ -290,7 +290,7 @@ def edit_pengaduan(pengaduan_id):
             return redirect(url_for("edit_pengaduan", pengaduan_id=pengaduan_id))
 
         conn.execute(
-            "UPDATE pengaduan SET status = ? WHERE id = ?",
+            "UPDATE pengaduan SET status = %s WHERE id = %s",
             (status_baru, pengaduan_id),
         )
         conn.commit()
@@ -306,7 +306,7 @@ def edit_pengaduan(pengaduan_id):
 @login_required
 def hapus_pengaduan(pengaduan_id):
     conn = get_db_connection()
-    conn.execute("DELETE FROM pengaduan WHERE id = ?", (pengaduan_id,))
+    conn.execute("DELETE FROM pengaduan WHERE id = %s", (pengaduan_id,))
     conn.commit()
     conn.close()
     flash("Data pengaduan berhasil dihapus.", "success")
