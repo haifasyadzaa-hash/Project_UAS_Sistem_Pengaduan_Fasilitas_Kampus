@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Beranda - Pengaduan Fasilitas Kampus{% endblock %}
+
+{% block content %}
+<div class="p-5 mb-4 hero-box rounded-4 text-white">
+    <h1 class="fw-bold">Sampaikan Keluhan Fasilitas Kampus Anda</h1>
+    <p class="mb-0">Temukan fasilitas rusak atau bermasalah? Laporkan di sini agar segera ditindaklanjuti oleh pihak kampus.</p>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title mb-3">Form Pengaduan</h5>
+                <form action="{{ url_for('tambah_pengaduan') }}" method="POST" novalidate id="form-pengaduan">
+                    <div class="mb-3">
+                        <label for="fasilitas_id" class="form-label">Fasilitas Bermasalah</label>
+                        <select class="form-select" id="fasilitas_id" name="fasilitas_id" required>
+                            <option value="" disabled selected>-- Pilih fasilitas --</option>
+                            {% for f in daftar_fasilitas %}
+                                <option value="{{ f.id }}">{{ f.nama }} ({{ f.lokasi }})</option>
+                            {% endfor %}
+                        </select>
+                        <div class="invalid-feedback">Silakan pilih fasilitas.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="nama_pelapor" class="form-label">Nama Pelapor</label>
+                        <input type="text" class="form-control" id="nama_pelapor" name="nama_pelapor" required>
+                        <div class="invalid-feedback">Nama wajib diisi.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                        <div class="invalid-feedback">Masukkan email yang valid.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="deskripsi" class="form-label">Deskripsi Pengaduan</label>
+                        <textarea class="form-control" id="deskripsi" name="deskripsi" rows="4" minlength="10" required
+                            placeholder="Jelaskan masalah yang ditemukan (minimal 10 karakter)..."></textarea>
+                        <div class="invalid-feedback">Deskripsi minimal 10 karakter.</div>
+                    </div>
+                    <button type="submit" class="btn btn-primary-custom w-100">Kirim Pengaduan</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <h5 class="mb-3">Daftar Fasilitas Kampus</h5>
+        <div class="row g-3">
+            {% for f in daftar_fasilitas %}
+            <div class="col-md-6">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body">
+                        <h6 class="card-title fw-bold">{{ f.nama }}</h6>
+                        <p class="card-text small text-muted mb-1">📍 {{ f.lokasi }}</p>
+                        <p class="card-text small">{{ f.deskripsi or "-" }}</p>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <p class="text-muted">Belum ada data fasilitas.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
