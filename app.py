@@ -5,11 +5,24 @@ from flask import (
 )
 from werkzeug.security import check_password_hash
 from database import get_db_connection, init_db
+import os
 
 app = Flask(__name__)
-app.secret_key = "ganti-dengan-secret-key-yang-lebih-aman"  # TODO: ganti saat deploy
+app.secret_key = os.environ.get("SECRET_KEY", "ganti-dengan-secret-key-yang-lebih-aman")
 
 STATUS_LIST = ["Baru", "Diproses", "Selesai", "Ditolak"]
+
+
+# ---------------------------------------------------------------------------
+# Inisialisasi tabel database.
+# ---------------------------------------------------------------------------
+try:
+    init_db()
+except Exception as e:
+    # Jangan sampai seluruh app gagal di-import hanya karena DB belum siap
+    # saat cold start; error tetap akan muncul lebih jelas saat request
+    # yang butuh koneksi DB dijalankan.
+    print(f"[WARNING] init_db() gagal saat startup: {e}")
 
 
 # ---------------------------------------------------------------------------
@@ -340,8 +353,7 @@ def laporan():
 
 
 # ---------------------------------------------------------------------------
-# ENTRY POINT
+# ENTRY POINT (hanya dipakai saat dijalankan lokal: python app.py)
 # ---------------------------------------------------------------------------
 if __name__ == "__main__":
-    init_db()
     app.run(debug=True)
